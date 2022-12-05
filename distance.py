@@ -1,5 +1,4 @@
 from enum import Enum
-import random as rand
 
 
 class DistanceType(Enum):
@@ -14,6 +13,9 @@ def chebyshev_dist(a: (int, int), b: (int, int)):
 
 
 def custom_dist(a: (int, int), b: (int, int), walls):
+    if round(a[0]) == b[0] and round(a[1]) == b[1]:
+        return 0.1
+
     cheb = chebyshev_dist(a, b)
 
     dx = (b[0] - a[0]) / cheb
@@ -28,7 +30,7 @@ def custom_dist(a: (int, int), b: (int, int), walls):
         # Add wall weight in here
         dist += 1  # + weight if new_point is wall
         if new_point in walls:
-            dist *= (1 + rand.uniform(0.25, 1.25))
+            dist += 0.15
         curr = new_point
 
     return dist

@@ -3,8 +3,8 @@ import numpy as np
 
 
 def generate_random_point(max_x, max_y):
-    x = rand.randrange(0, max_x, 1)
-    y = rand.randrange(0, max_y, 1)
+    x = rand.randint(0, max_x - 1)
+    y = rand.randint(0, max_y - 1)
     return x, y
 
 
