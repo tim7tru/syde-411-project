@@ -19,7 +19,7 @@ def weiszfeld(access_points, walls):
     prev = centroid(access_points)
     prev_dist = 0
 
-    while True:
+    for i in range(1, 500):
         dist = []
 
         for point in access_points:
@@ -36,8 +36,6 @@ def weiszfeld(access_points, walls):
 
         prev_dist = curr_dist
 
-    print(f"Final Pt: {prev}")
-    print(f"Distance: {prev_dist}")
     return round(prev[0]), round(prev[1])
 
 

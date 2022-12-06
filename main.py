@@ -6,88 +6,58 @@ from sklearn.cluster import KMeans
 import time as time
 import numpy as np
 
-LENGTH = 50
-WIDTH = 50
-NUM_ACCESS_POINTS = 20
+# Add wall and AP coords here
+WALLS = []
+ACCESS_POINTS = []
 
 
-def one_router(walls, ap):
-    return weiszfeld(ap, walls)
-
-
-def two_routers(walls, ap):
-    kmeans = KMeans(n_clusters=2, random_state=0)
+def n_routers(n, walls, ap):
+    kmeans = KMeans(n_clusters=n, random_state=0)
     kmeans.fit(ap)
+    coords = []
+    for i in range(n):
+        cluster = ap[kmeans.labels_ == i]
+        x_i, y_i = weiszfeld(cluster, walls)
+        coords.append((x_i, y_i))
 
-    first_cluster = ap[kmeans.labels_ == 0]
-    second_cluster = ap[kmeans.labels_ == 1]
-
-    x1, y1 = weiszfeld(first_cluster, walls)
-    x2, y2 = weiszfeld(second_cluster, walls)
-
-    return (x1, y1), (x2, y2)
-
-
-def three_routers(walls, ap):
-    kmeans = KMeans(n_clusters=3, random_state=0)
-    kmeans.fit(ap)
-
-    first_cluster = ap[kmeans.labels_ == 0]
-    second_cluster = ap[kmeans.labels_ == 1]
-    third_cluster = ap[kmeans.labels_ == 2]
-
-    x1, y1 = weiszfeld(first_cluster, walls)
-    x2, y2 = weiszfeld(second_cluster, walls)
-    x3, y3 = weiszfeld(third_cluster, walls)
-
-    return (x1, y1), (x2, y2), (x2, y3)
+    return coords
 
 
 if __name__ == "__main__":
-    walls = generate_walls(LENGTH, WIDTH)
-    ap = generate_access_points(NUM_ACCESS_POINTS, LENGTH, WIDTH, walls)
-    end_times = []
 
-    one_start = time.time()
-    one = one_router(walls, ap)
-    end_times.append(time.time())
+    width = int(input("Enter width of board: "))
+    length = int(input("Enter length of board: "))
+    num_ap = int(input("Enter number of access points: "))
+    num_routers = int(input("Enter number of routers: "))
 
-    two_start = time.time()
-    two = two_routers(walls, ap)
-    end_times.append(time.time())
+    if num_routers > num_ap:
+        raise ValueError("Number of routers cannot exceed number of access points")
 
-    three_start = time.time()
-    three = three_routers(walls, ap)
-    end_times.append(time.time())
+    print("Generating Walls...")
+    walls = generate_walls(length, width)
+    print("Walls Generated")
 
-    arr1 = np.zeros((LENGTH, WIDTH))
-    arr2 = np.zeros((LENGTH, WIDTH))
-    arr3 = np.zeros((LENGTH, WIDTH))
+    print("Generating APs...")
+    ap = generate_access_points(num_ap, length, width, walls)
+    print("APs Generated")
+
+    print("Optimizing...")
+    start_time = time.time()
+    routers = n_routers(num_routers, walls, ap)
+    end_time = time.time()
+    print("Optimized")
+
+    board = np.zeros((length, width))
 
     for pt in ap:
-        arr1[pt[0]][pt[1]] = 3
-        arr2[pt[0]][pt[1]] = 3
-        arr3[pt[0]][pt[1]] = 3
+        board[pt[0]][pt[1]] = 3
 
     for pt in walls:
-        arr1[pt[0]][pt[1]] = 4
-        arr2[pt[0]][pt[1]] = 4
-        arr3[pt[0]][pt[1]] = 4
+        board[pt[0]][pt[1]] = 4
 
-    arr1[one[0]][one[1]] = 2
+    for pt in routers:
+        board[pt[0]][pt[1]] = 2
 
-    for pt in two:
-        arr2[pt[0]][pt[1]] = 2
+    plot_grid(board)
 
-    for pt in three:
-        arr3[pt[0]][pt[1]] = 2
-
-    plot_grid(arr1)
-    plot_grid(arr2)
-    plot_grid(arr3)
-
-    # print(f"Custom end time: {custom_end - start}")
-    print(f"One router duration: {end_times[0] - one_start}")
-    print(f"Two router duration: {end_times[1] - two_start}")
-    print(f"Three router duration: {end_times[2] - three_start}")
-
+    print(f"Program runtime duration: {end_time - start_time}")

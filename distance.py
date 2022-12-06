@@ -1,11 +1,3 @@
-from enum import Enum
-
-
-class DistanceType(Enum):
-    CHEBYSHEV = 1
-    CUSTOM = 2
-
-
 def chebyshev_dist(a: (int, int), b: (int, int)):
     dx = abs(a[0] - b[0])
     dy = abs(a[1] - b[1])
@@ -32,5 +24,7 @@ def custom_dist(a: (int, int), b: (int, int), walls):
         if new_point in walls:
             dist += 0.15
         curr = new_point
+        if round(curr[0]) != b[0] or round(curr[1]) != b[1]:
+            break
 
     return dist
